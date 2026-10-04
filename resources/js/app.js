@@ -1,3 +1,4 @@
+import Chart from 'chart.js/auto';
 import { createWorker } from 'tesseract.js';
 
 const screenshotInput = document.querySelector('#screenshot');
@@ -212,5 +213,107 @@ ocrStatus.textContent = 'RR部分を切り抜いています...';
             ocrStatus.textContent =
                 'OCR解析に失敗しました。';
         }
+    });
+}
+const rrChartElement = document.querySelector('#rrChart');
+const rrPeriodElement = document.querySelector('#rrPeriod');
+
+if (rrChartElement && rrPeriodElement) {
+
+    const chartData = {
+        all: {
+            labels: JSON.parse(
+                rrChartElement.dataset.allLabels
+            ),
+            values: JSON.parse(
+                rrChartElement.dataset.allValues
+            ),
+            label: '累積RR'
+        },
+
+        daily: {
+            labels: JSON.parse(
+                rrChartElement.dataset.dailyLabels
+            ),
+            values: JSON.parse(
+                rrChartElement.dataset.dailyValues
+            ),
+            label: '日ごとのRR'
+        },
+
+        weekly: {
+            labels: JSON.parse(
+                rrChartElement.dataset.weeklyLabels
+            ),
+            values: JSON.parse(
+                rrChartElement.dataset.weeklyValues
+            ),
+            label: '週ごとのRR'
+        },
+
+        monthly: {
+            labels: JSON.parse(
+                rrChartElement.dataset.monthlyLabels
+            ),
+            values: JSON.parse(
+                rrChartElement.dataset.monthlyValues
+            ),
+            label: '月ごとのRR'
+        }
+    };
+
+    let rrChart = null;
+
+    function drawChart(period) {
+
+        const data = chartData[period];
+
+        if (rrChart) {
+            rrChart.destroy();
+        }
+
+        rrChart = new Chart(rrChartElement, {
+            type: 'line',
+
+            data: {
+                labels: data.labels,
+
+                datasets: [
+                    {
+                        label: data.label,
+                        data: data.values,
+                        borderWidth: 3,
+                        tension: 0.3,
+                        pointRadius: 4,
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    }
+
+    // 最初は全期間
+    drawChart('all');
+
+    // セレクト変更時
+    rrPeriodElement.addEventListener('change', () => {
+        drawChart(rrPeriodElement.value);
     });
 }
