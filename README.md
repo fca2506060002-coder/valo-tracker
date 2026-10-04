@@ -1,58 +1,106 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# VALO RR Tracker
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+VALORANTの戦績スクリーンショットをOCRで解析し、
+RR（ランクレーティング）を自動取得してデータベースに保存・管理するWebアプリです。
 
-## About Laravel
+## 概要
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+VALORANTの試合結果を毎回手入力する手間を減らすため、
+戦績画面のスクリーンショットからRRを自動で読み取る機能を実装しました。
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+取得したRRはデータベースに保存され、
+戦績一覧やRR推移グラフから確認できます。
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 使用技術
 
-## Learning Laravel
+- Laravel 13
+- PHP 8.5
+- MySQL
+- JavaScript
+- Tesseract.js
+- Chart.js
+- Docker / Laravel Sail
+- Vite
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 主な機能
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 1. 戦績スクリーンショットアップロード
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+VALORANTの戦績画面のスクリーンショットを選択してアップロードします。
 
-## Agentic Development
+### 2. OCRによるRR自動検出
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+アップロードしたスクリーンショットから、
+RRが表示されている部分を切り抜き、OCRによってRRを自動検出します。
 
-```bash
-composer require laravel/boost --dev
+例：
 
-php artisan boost:install
-```
+- +14
+- +16
+- -22
+- -23
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 3. データベース保存
 
-## Contributing
+OCRで検出したRRをLaravelからMySQLへ保存します。
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+保存する主な情報：
 
-## Code of Conduct
+- 試合日時
+- 勝敗
+- RR増減
+- スクリーンショットの保存先
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 4. 戦績一覧
 
-## Security Vulnerabilities
+データベースに保存された戦績を一覧で確認できます。
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 5. RR集計
 
-## License
+以下の情報を確認できます。
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- 今日のRR
+- 今週のRR
+- 総試合数
+- WIN数
+- LOSS数
+
+### 6. RR推移グラフ
+
+Chart.jsを使用してRRの推移をグラフで表示します。
+
+グラフは以下の単位に切り替えられます。
+
+- 全期間
+- 日ごと
+- 週ごと
+- 月ごと
+
+## 操作方法
+
+1. 「スクショを追加」を開く
+2. VALORANTの戦績スクリーンショットを選択する
+3. OCRによるRR解析が自動で開始される
+4. 検出されたRRを確認する
+5. 「スクショをアップロード」を押す
+6. RRがデータベースに保存される
+7. 戦績一覧で登録された結果を確認する
+8. RR推移グラフで成績を確認する
+9. グラフの表示を全期間・日・週・月に切り替える
+
+## 工夫した点
+
+戦績を手入力するのではなく、
+スクリーンショットからOCRを利用してRRを自動取得することで、
+入力の手間を減らせるようにしました。
+
+また、OCRの誤認識を減らすため、
+戦績画面全体ではなくRRが表示されている部分を切り抜いてから解析しています。
+
+## 今後追加したい機能
+
+- OCRで取得した結果の確認・修正機能
+- 試合ごとの詳細表示
+- より正確な日時の取得
+- スクリーンショットからランク情報の取得
+- さらに見やすいダッシュボード
